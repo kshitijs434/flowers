@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tulip Night Garden 🌷</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  overflow:hidden;
+  background:radial-gradient(circle at top,#0b1d3a,#000);
+  touch-action:manipulation;
+  font-family:sans-serif;
+}
+
+/* 🌙 Moon */
+.moon{
+  position:absolute;
+  top:40px;
+  right:40px;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#fff,#ddd,#bbb);
+  box-shadow:
+    0 0 30px rgba(255,255,255,.4),
+    0 0 80px rgba(255,255,255,.2);
+}
+
+/* ☁️ Clouds */
+.cloud{
+  position:absolute;
+  top:80px;
+  width:160px;
+  height:50px;
+  background:rgba(255,255,255,.12);
+  border-radius:50px;
+  filter:blur(6px);
+  animation:cloudMove linear infinite;
+}
+.cloud::before,.cloud::after{
+  content:"";
+  position:absolute;
+  background:inherit;
+  width:70px;
+  height:60px;
+  border-radius:50%;
+  top:-20px;
+}
+.cloud::before{ left:25px; }
+.cloud::after{ right:25px; }
+
+@keyframes cloudMove{
+  from{ transform:translateX(-200px); }
+  to{ transform:translateX(120vw); }
+}
+
+/* UI */
+.controls{
+  position:fixed;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:8px;
+  z-index:10;
+}
+.controls button{
+  padding:6px 12px;
+  border-radius:20px;
+  border:none;
+  font-size:14px;
+  background:#fff;
+}
+
+/* Ground */
+.ground{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:100px;
+  background:#0b3d1a;
+}
+
+/* Stem */
+.stem{
+  position:absolute;
+  bottom:100px;
+  width:3px;
+  height:0;
+  background:#2ecc71;
+  border-radius:3px;
+  transform-origin:bottom;
+  animation:grow .6s ease-out forwards,
+           swayStem 4s ease-in-out infinite;
+}
+.stem.gust{ animation:gustStem .6s ease-in-out; }
+
+/* Tulip */
+.tulip{
+  position:absolute;
+  width:40px;
+  height:45px;
+  transform:scale(0);
+  animation:bloom .5s ease-out forwards,
+           swayFlower 4s ease-in-out infinite;
+}
+.tulip.gust{ animation:gustFlower .6s ease-in-out; }
+
+/* Petals */
+.tulip-petal{
+  position:absolute;
+  width:18px;
+  height:30px;
+  top:5px;
+  left:11px;
+  border-radius:50% 50% 40% 40%;
+  transform-origin:bottom center;
+  box-shadow:inset -2px -4px 6px rgba(0,0,0,.25);
+  transition:transform 1.4s ease-in-out;
+}
+
+/* Closed */
+.tulip.closed .petal-left{ transform:rotate(-6deg); }
+.tulip.closed .petal-right{ transform:rotate(6deg); }
+.tulip.closed .petal-center{ transform:rotate(0deg); }
+
+/* Open (curled) */
+.tulip.open .petal-left{
+  transform:rotate(-26deg) skewX(-6deg) translateY(-2px);
+}
+.tulip.open .petal-right{
+  transform:rotate(26deg) skewX(6deg) translateY(-2px);
+}
+.tulip.open .petal-center{
+  transform:rotate(0deg) translateY(-4px) skewX(2deg);
+}
+
+/* Butterfly */
+.butterfly{
+  position:absolute;
+  font-size:20px;
+  pointer-events:none;
+}
+.butterfly span{
+  display:inline-block;
+  animation:flap .7s ease-in-out infinite;
+}
+
+/* Fade */
+.fade{ animation:fadeOut 1.2s ease-in forwards; }
+
+/* Animations */
+@keyframes grow{to{height:70px}}
+@keyframes bloom{to{transform:scale(1)}}
+@keyframes swayStem{
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(2deg)}
+}
+@keyframes swayFlower{
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(-2.5deg)}
+}
+@keyframes gustStem{
+  50%{transform:rotate(10deg)}
+}
+@keyframes gustFlower{
+  50%{transform:rotate(-12deg)}
+}
+@keyframes fadeOut{
+  to{opacity:0;transform:scale(0)}
+}
+@keyframes flap{
+  0%,100%{transform:scaleX(1)}
+  50%{transform:scaleX(.75)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="moon"></div>
+
+<!-- Clouds -->
+<div class="cloud" style="top:90px;animation-duration:80s;"></div>
+<div class="cloud" style="top:140px;animation-duration:110s;opacity:.08;"></div>
+<div class="cloud" style="top:200px;animation-duration:140s;opacity:.06;"></div>
+
+<div class="controls">
+  <button onclick="setColor('white')">🤍</button>
+  <button onclick="setColor('pink')">💗</button>
+  <button onclick="setColor('yellow')">💛</button>
+</div>
+
+<div class="ground"></div>
+
+<script>
+let currentColor="pink";
+function setColor(c){currentColor=c;}
+function getColor(){
+  if(currentColor==="white") return "radial-gradient(circle at top,#fff,#ddd)";
+  if(currentColor==="yellow") return "radial-gradient(circle at top,#ffe066,#f1c40f)";
+  return "radial-gradient(circle at top,#ff8fab,#d6336c)";
+}
+
+function createTulip(x){
+  const stem=document.createElement("div");
+  stem.className="stem";
+  stem.style.left=x+"px";
+  document.body.appendChild(stem);
+
+  setTimeout(()=>{
+    const tulip=document.createElement("div");
+    tulip.className="tulip closed";
+    tulip.style.left=(x-20)+"px";
+    tulip.style.bottom="170px";
+
+    ["left","center","right"].forEach(p=>{
+      const pet=document.createElement("div");
+      pet.className="tulip-petal petal-"+p;
+      pet.style.background=getColor();
+      tulip.appendChild(pet);
+    });
+    document.body.appendChild(tulip);
+
+    setTimeout(()=>tulip.classList.replace("closed","open"),900);
+
+    setTimeout(()=>{
+      tulip.classList.add("closed","gust");
+      stem.classList.add("gust");
+      setTimeout(()=>{
+        tulip.classList.remove("gust");
+        stem.classList.remove("gust");
+      },600);
+    },2600+Math.random()*1000);
+
+    setTimeout(()=>{
+      tulip.classList.add("fade");
+      stem.classList.add("fade");
+      setTimeout(()=>{
+        tulip.remove();stem.remove();
+      },1200);
+    },5200);
+
+    const b=document.createElement("div");
+    b.className="butterfly";
+    b.innerHTML="<span>🦋</span>";
+    b.style.left="-40px";
+    b.style.top="130px";
+    document.body.appendChild(b);
+
+    b.animate([
+      {transform:"translate(0,0)"},
+      {transform:`translate(${x-20}px,150px)`},
+      {transform:`translate(${x}px,165px)`}
+    ],{duration:4800,easing:"ease-in-out"});
+
+    setTimeout(()=>{
+      b.animate([
+        {transform:"translate(0,0)"},
+        {transform:"translate(260px,-180px)"}
+      ],{duration:5000,easing:"ease-in-out"});
+      setTimeout(()=>b.remove(),5000);
+    },5500);
+
+  },600);
+}
+
+document.addEventListener("touchstart",e=>{
+  createTulip(e.touches[0].clientX);
+});
+document.addEventListener("click",e=>{
+  createTulip(e.clientX);
+});
+</script>
+
+</body>
+</html>
